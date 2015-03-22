@@ -1,0 +1,13 @@
+Overview
+----------
+This is a quick overview of the pycurrency package
+
+usage:
+Converting from one currency to another::
+
+	>>> from pycurrency import converter
+	>>> myconverter = converter.Converter(1,'USD','JMD')
+	>>> myconverter.result()
+	u'85.2878465'
+	>>> myconverter.ratio()
+	{'to': u'85.2878465', 'from': u'1'}

@@ -1,0 +1,12 @@
+Metadata-Version: 1.0
+Name: pycurrency
+Version: 1.0a17
+Summary: A currency converter that uses google.com/ig/calculator
+Home-page: http://pigeonflight.blogspot.com
+Author: David Bain
+Author-email: pigeonflight@gmail.com
+License: UNKNOWN
+Description: get full documentation at http://pycurrency.rtfd.org
+        
+Keywords: currency converter google api
+Platform: UNKNOWN
