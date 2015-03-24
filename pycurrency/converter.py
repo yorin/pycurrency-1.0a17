@@ -1,5 +1,4 @@
-import json
-import urllib2, urllib
+import urllib2
 import re
 
 class Converter:
@@ -27,18 +26,22 @@ class Converter:
         else:
             self.query = {'amount':self.amount, 
              'from':self.from_cur,
-             'to' :self.to_cur,
-             'eq':'%3D%3F'} # the %3D%3F is equivalent to ?=
+             'to' :self.to_cur}
 
-            self.url = "http://www.google.com/ig/calculator?hl=en&q=%(amount)s%(from)s%(eq)s%(to)s" % self.query
+            #depricated url does not exist
+            #self.url = "http://www.google.com/ig/calculator?hl=en&q=%(amount)s%(from)s%(eq)s%(to)s" % self.query
+
+            #https://www.google.com/finance/converter?a=1&from=USD&to=PHP
+            #{'to': 'PHP', 'amount': 1, 'from': 'USD'}
+            self.url = 'https://www.google.com/finance/converter?a='+ "%(amount)s" % self.query + '&from=' + "%(from)s" % self.query + '&to=' + "%(to)s" % self.query
 
             request = urllib2.urlopen(self.url)
             raw_data = request.read()
-            raw_data = raw_data.replace('\xa0','')
-            j = self.sanitize(raw_data)
-            data = json.loads(j)
-            lhs = float(data['lhs'].split(" ")[0])
-            rhs = float(data['rhs'].split(" ")[0])
+            raw_data = re.search("<div id=currency_converter_result>.*", raw_data).group()
+            p = re.compile(r'<.*?>|=')
+            list1 = re.split("\s+", p.sub('', raw_data))
+            lhs = float(list1[0])
+            rhs = float(list1[2])
             cur_ratio['from'] = lhs
             cur_ratio['to'] = rhs
             self._rates[fromto] = rhs / self.amount
@@ -59,25 +62,5 @@ class Converter:
     def rates(self):
         return self._rates
 
-    def sanitize(self,raw_data):
-        """ cleans up json that doesn't use double quotes 
-           for its keys """
-        j = raw_data
-	# The json returned from this service is badly formatted
-        # json.loads expects well formed json
-        # with keys that have double quotes
-        # e.g. {"good":"json","uses":"doublequotes"}
-	# The regular expressions 
-        # below are used to clean up the
-	# returned object and make it proper json
-	# borrowed from http://stackoverflow.com/questions/4033633/handling-lazy-json-in-python-expecting-property-name
-
-	j = re.sub(r"{\s*(\w)", r'{"\1', j)
-	j = re.sub(r",\s*(\w)", r',"\1', j)
-	j = re.sub(r"(\w):", r'\1":', j)
-        return j
-
 def convert(amount,from_cur,to_cur):
     return Converter(amount,from_cur,to_cur).result()
-
-
